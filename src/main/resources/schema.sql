@@ -1,0 +1,2 @@
+CREATE USER IF NOT EXISTS testuser PASSWORD 'testpass';
+GRANT ALL ON SCHEMA PUBLIC TO testuser;
