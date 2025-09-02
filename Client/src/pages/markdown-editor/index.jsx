@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../components/ui/NavigationBridge";
 import AppHeader from "../../components/ui/AppHeader";
@@ -20,8 +20,9 @@ const MarkdownEditor = () => {
   const [mobileView, setMobileView] = useState("edit");
   const [noteId, setNoteId] = useState(null);
 
-  const autoSaveTimeoutRef = useRef(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  const textareaRef = useRef(null);
 
   // ✅ Load note if editing
   useEffect(() => {
@@ -78,6 +79,34 @@ const MarkdownEditor = () => {
     }
   };
 
+  // ✅ Formatting Handler
+  const handleFormat = (prefix, suffix) => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selected = content.substring(start, end);
+
+    const newValue =
+      content.substring(0, start) +
+      prefix +
+      selected +
+      suffix +
+      content.substring(end);
+
+    setContent(newValue);
+    setHasUnsavedChanges(true);
+    setSaveStatus("unsaved");
+
+    // Restore cursor selection
+    setTimeout(() => {
+      textarea.focus();
+      textarea.selectionStart = start + prefix.length;
+      textarea.selectionEnd = end + prefix.length;
+    }, 0);
+  };
+
   const handleBack = () => {
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm("You have unsaved changes. Leave anyway?");
@@ -95,7 +124,11 @@ const MarkdownEditor = () => {
       <div className="pt-16">
         <EditorHeader
           title={title}
-          onTitleChange={(val) => { setTitle(val); setHasUnsavedChanges(true); setSaveStatus("unsaved"); }}
+          onTitleChange={(val) => {
+            setTitle(val);
+            setHasUnsavedChanges(true);
+            setSaveStatus("unsaved");
+          }}
           saveStatus={saveStatus}
           lastSaved={lastSaved}
           onSave={handleManualSave}
@@ -113,8 +146,14 @@ const MarkdownEditor = () => {
           <div className="hidden lg:flex h-full">
             <div className="w-1/2 p-4">
               <EditorPane
+                ref={textareaRef}
                 content={content}
-                onChange={(val) => { setContent(val); setHasUnsavedChanges(true); setSaveStatus("unsaved"); }}
+                onChange={(val) => {
+                  setContent(val);
+                  setHasUnsavedChanges(true);
+                  setSaveStatus("unsaved");
+                }}
+                onFormat={handleFormat}   // ✅ Pass formatting
                 lineNumbers={true}
               />
             </div>
@@ -126,8 +165,14 @@ const MarkdownEditor = () => {
           <div className="lg:hidden h-full p-4">
             {mobileView === "edit" ? (
               <EditorPane
+                ref={textareaRef}
                 content={content}
-                onChange={(val) => { setContent(val); setHasUnsavedChanges(true); setSaveStatus("unsaved"); }}
+                onChange={(val) => {
+                  setContent(val);
+                  setHasUnsavedChanges(true);
+                  setSaveStatus("unsaved");
+                }}
+                onFormat={handleFormat}   // ✅ Pass formatting
                 lineNumbers={false}
               />
             ) : (

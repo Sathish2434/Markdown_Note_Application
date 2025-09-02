@@ -8,8 +8,9 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    // ✅ Navigate to edit route using note.id
-    navigate(`/markdown-editor/${note?.id}`);
+    if (note?.id) {
+      navigate(`/markdown-editor?id=${note.id}`); // ✅ pass id in URL
+    }
   };
 
   const handleDelete = async () => {
@@ -30,35 +31,31 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
+    if (!dateString) return "Unknown date";
     const date = new Date(dateString);
-    return isNaN(date.getTime())
-      ? "N/A"
-      : date.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        });
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
   };
 
   const getPreviewText = (content) => {
     if (!content) return "No content";
     const plainText = content
-      ?.replace(/#{1,6}\s+/g, "") // headers
-      ?.replace(/\*\*(.*?)\*\*/g, "$1") // bold
-      ?.replace(/\*(.*?)\*/g, "$1") // italic
-      ?.replace(/`(.*?)`/g, "$1") // inline code
-      ?.replace(/\[(.*?)\]\(.*?\)/g, "$1") // links
-      ?.replace(/\n/g, " ") // newlines
-      ?.trim();
+      .replace(/#{1,6}\s+/g, "") // headers
+      .replace(/\*\*(.*?)\*\*/g, "$1") // bold
+      .replace(/\*(.*?)\*/g, "$1") // italic
+      .replace(/`(.*?)`/g, "$1") // inline code
+      .replace(/\[(.*?)\]\(.*?\)/g, "$1") // links
+      .replace(/\n/g, " ") // newlines
+      .trim();
 
-    return plainText?.length > 120
-      ? plainText.substring(0, 120) + "..."
-      : plainText;
+    return plainText.length > 120 ? plainText.substring(0, 120) + "..." : plainText;
   };
 
   return (
-    <div className="relative bg-card border border-border rounded-lg p-4 hover:shadow-moderate transition-all duration-200 group">
+    <div className="bg-card border border-border rounded-lg p-4 hover:shadow-moderate transition-all duration-200 group relative">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <h3 className="text-lg font-semibold text-foreground line-clamp-2 flex-1 mr-2">
@@ -116,13 +113,11 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
         </div>
         <div className="flex items-center space-x-1">
           <Icon name="FileText" size={12} />
-          <span>
-            {note?.content ? Math.ceil(note?.content?.length / 1000) : 0}k chars
-          </span>
+          <span>{note?.content ? Math.ceil(note.content.length / 1000) : 0}k chars</span>
         </div>
       </div>
 
-      {/* Click overlay for mobile */}
+      {/* Mobile Click Overlay */}
       <button
         onClick={handleEdit}
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer md:hidden"

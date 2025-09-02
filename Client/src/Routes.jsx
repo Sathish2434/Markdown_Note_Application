@@ -16,14 +16,10 @@ const Routes = () => {
       <RouterRoutes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/user-login" element={<UserLogin />} />
-        <Route path="/user-registration" element={<UserRegistration />} />
-        
-        {/* Notes */}
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/markdown-editor" element={<MarkdownEditor />} />       {/* new note */}
-        <Route path="/markdown-editor/:id" element={<MarkdownEditor />} />   {/* edit note */}
-        
-        {/* Fallback */}
+        <Route path="/user-registration" element={<UserRegistration />} />
+        <Route path="/markdown-editor" element={<MarkdownEditor />} />          {/* new note */}
+        <Route path="/markdown-editor/:id" element={<MarkdownEditor />} />      {/* edit note */}
         <Route path="*" element={<NotFound />} />
       </RouterRoutes>
     </ErrorBoundary>
