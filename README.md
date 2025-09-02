@@ -108,5 +108,3 @@ This project is licensed under the MIT License.
 ---
 
 ⚡ This version has **badges, structure, and a professional tone** → Perfect for **GitHub README**.  
-
-Do you want me to also make a **LinkedIn post template** (short + engaging with emojis) that you can post directly when you upload this project?
