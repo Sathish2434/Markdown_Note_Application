@@ -201,16 +201,18 @@ function hello() {
     setIsLoading(true);
     try {
       const apiNotes = await notesAPI.getAllNotes();
-      setNotes(apiNotes);
-      setFilteredNotes(apiNotes);
+      const list = Array.isArray(apiNotes) ? apiNotes : [];
+      setNotes(list);
+      setFilteredNotes(list);
     } catch (error) {
       console.error('Failed to load notes from API:', error);
       // Fallback to localStorage if API fails
       const savedNotes = localStorage.getItem('markdownNotes');
       if (savedNotes) {
         const parsedNotes = JSON.parse(savedNotes);
-        setNotes(parsedNotes);
-        setFilteredNotes(parsedNotes);
+        const list = Array.isArray(parsedNotes) ? parsedNotes : [];
+        setNotes(list);
+        setFilteredNotes(list);
       } else {
         setNotes([]);
         setFilteredNotes([]);

@@ -1,14 +1,7 @@
 package dev.sathish.Markdown_Note_Application.core;
 
-import java.util.Collection;
-import java.util.UUID;
+import dev.sathish.Markdown_Note_Application.core.Note;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface NoteRepository {
-  Note save(Note note);
-
-  Collection<Note> getAll();
-
-  Note getNote(UUID id);
-
-  void delete(UUID id);
+public interface NoteRepository extends JpaRepository<Note, Long> {
 }

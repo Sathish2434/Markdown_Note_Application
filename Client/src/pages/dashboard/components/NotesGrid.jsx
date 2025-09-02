@@ -33,13 +33,15 @@ const NotesGrid = ({ notes, onDeleteNote, onDuplicateNote, isLoading }) => {
     );
   }
 
-  if (!notes || notes?.length === 0) {
+  const safeNotes = Array.isArray(notes) ? notes : [];
+
+  if (safeNotes.length === 0) {
     return null; // EmptyState will be shown by parent component
   }
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {notes?.map((note) => (
+      {safeNotes.map((note) => (
         <NoteCard
           key={note?.id}
           note={note}

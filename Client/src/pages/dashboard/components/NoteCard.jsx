@@ -1,23 +1,24 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import Icon from "../../../components/AppIcon";
+import Button from "../../../components/ui/Button";
 
 const NoteCard = ({ note, onDelete, onDuplicate }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   const handleEdit = () => {
-    navigate('/markdown-editor', { state: { note } });
+    // ✅ Navigate to edit route using note.id
+    navigate(`/markdown-editor/${note?.id}`);
   };
 
   const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this note?')) {
+    if (window.confirm("Are you sure you want to delete this note?")) {
       setIsDeleting(true);
       try {
         await onDelete(note?.id);
       } catch (error) {
-        console.error('Failed to delete note:', error);
+        console.error("Failed to delete note:", error);
       } finally {
         setIsDeleting(false);
       }
@@ -29,34 +30,39 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
   };
 
   const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
     const date = new Date(dateString);
-    return date?.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
+    return isNaN(date.getTime())
+      ? "N/A"
+      : date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        });
   };
 
   const getPreviewText = (content) => {
-    if (!content) return 'No content';
-    // Remove markdown syntax for preview
-    const plainText = // Replace newlines with spaces
-    // Remove links
-    // Remove inline code
-    // Remove italic
-    // Remove bold
-    // Remove headers
-    content?.replace(/#{1,6}\s+/g, '')?.replace(/\*\*(.*?)\*\*/g, '$1')?.replace(/\*(.*?)\*/g, '$1')?.replace(/`(.*?)`/g, '$1')?.replace(/\[(.*?)\]\(.*?\)/g, '$1')?.replace(/\n/g, ' ')?.trim();
-    
-    return plainText?.length > 120 ? plainText?.substring(0, 120) + '...' : plainText;
+    if (!content) return "No content";
+    const plainText = content
+      ?.replace(/#{1,6}\s+/g, "") // headers
+      ?.replace(/\*\*(.*?)\*\*/g, "$1") // bold
+      ?.replace(/\*(.*?)\*/g, "$1") // italic
+      ?.replace(/`(.*?)`/g, "$1") // inline code
+      ?.replace(/\[(.*?)\]\(.*?\)/g, "$1") // links
+      ?.replace(/\n/g, " ") // newlines
+      ?.trim();
+
+    return plainText?.length > 120
+      ? plainText.substring(0, 120) + "..."
+      : plainText;
   };
 
   return (
-    <div className="bg-card border border-border rounded-lg p-4 hover:shadow-moderate transition-all duration-200 group">
+    <div className="relative bg-card border border-border rounded-lg p-4 hover:shadow-moderate transition-all duration-200 group">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <h3 className="text-lg font-semibold text-foreground line-clamp-2 flex-1 mr-2">
-          {note?.title || 'Untitled Note'}
+          {note?.title || "Untitled Note"}
         </h3>
         <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <Button
@@ -86,12 +92,14 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
           />
         </div>
       </div>
+
       {/* Content Preview */}
       <div className="mb-4">
         <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
           {getPreviewText(note?.content)}
         </p>
       </div>
+
       {/* Footer */}
       <div className="flex items-center justify-between text-xs text-muted-foreground">
         <div className="flex items-center space-x-4">
@@ -108,9 +116,12 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
         </div>
         <div className="flex items-center space-x-1">
           <Icon name="FileText" size={12} />
-          <span>{note?.content ? Math.ceil(note?.content?.length / 1000) : 0}k chars</span>
+          <span>
+            {note?.content ? Math.ceil(note?.content?.length / 1000) : 0}k chars
+          </span>
         </div>
       </div>
+
       {/* Click overlay for mobile */}
       <button
         onClick={handleEdit}

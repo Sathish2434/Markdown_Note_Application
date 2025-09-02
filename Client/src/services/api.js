@@ -42,7 +42,8 @@ export const notesAPI = {
   // Get all notes
   getAllNotes: async () => {
     const response = await api.get('/notes');
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : (Array.isArray(data?.content) ? data.content : []);
   },
 
   // Save a new note

@@ -9,6 +9,7 @@ const Input = React.forwardRef(({
     error,
     required = false,
     id,
+    value,
     ...props
 }, ref) => {
     // Generate unique ID if not provided
@@ -74,6 +75,7 @@ const Input = React.forwardRef(({
                 )}
                 ref={ref}
                 id={inputId}
+                value={value ?? ""}
                 {...props}
             />
 
