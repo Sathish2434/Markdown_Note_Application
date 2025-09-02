@@ -4,71 +4,82 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@Transactional
 public class NoteService {
-  private final NoteRepository noteRepository;
-  private final StorageService storageService;
-  private final MarkdownToHtmlConverter markdownToHtmlConverter;
 
-  public NoteService(NoteRepository noteRepository, StorageService storageService,
-      MarkdownToHtmlConverter markdownToHtmlConverter) {
-    this.noteRepository = noteRepository;
-    this.storageService = storageService;
-    this.markdownToHtmlConverter = markdownToHtmlConverter;
-  }
+    private final NoteRepository noteRepository;
+    private final StorageService storageService;
+    private final MarkdownToHtmlConverter markdownToHtmlConverter;
 
-  public Note saveNote(String title, InputStream content) {
-    try {
-      String text = new String(content.readAllBytes(), StandardCharsets.UTF_8);
-      Note note = new Note();
-      note.setTitle(title);
-      note.setContent(text);
-      return this.noteRepository.save(note);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    public NoteService(NoteRepository noteRepository,
+                       StorageService storageService,
+                       MarkdownToHtmlConverter markdownToHtmlConverter) {
+        this.noteRepository = noteRepository;
+        this.storageService = storageService;
+        this.markdownToHtmlConverter = markdownToHtmlConverter;
     }
-  }
 
-  public List<Note> getAllNotes() {
-    return this.noteRepository.findAll();
-  }
+    // ✅ Create Note
+    public Note saveNote(String title, InputStream content) {
+        try {
+            String text = new String(content.readAllBytes(), StandardCharsets.UTF_8);
+            Note note = new Note();
+            note.setTitle(title);
+            note.setContent(text);
+            // createdAt handled by JPA Auditing
+            return this.noteRepository.save(note);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-  public Note getNoteById(Long id) {
-    return this.noteRepository.findById(id).orElse(null);
-  }
+    // ✅ Get All Notes
+    public List<Note> getAllNotes() {
+        return this.noteRepository.findAll();
+    }
 
-  public Note updateNote(Long id, String title, InputStream content) {
-    Note existingNote = this.noteRepository.findById(id).orElse(null);
-    if (existingNote == null) {
-      throw new RuntimeException("Note not found with id: " + id);
+    // ✅ Get by Id
+    public Note getNoteById(Long id) {
+        return this.noteRepository.findById(id).orElse(null);
     }
-    try {
-      String text = new String(content.readAllBytes(), StandardCharsets.UTF_8);
-      existingNote.setTitle(title);
-      existingNote.setContent(text);
-      return this.noteRepository.save(existingNote);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-  }
 
-  public void deleteNote(Long id) {
-    if (this.noteRepository.existsById(id)) {
-      this.noteRepository.deleteById(id);
+    // ✅ Update Note
+    public Note updateNote(Long id, String title, InputStream content) {
+        return this.noteRepository.findById(id).map(existingNote -> {
+            try {
+                String text = new String(content.readAllBytes(), StandardCharsets.UTF_8);
+                existingNote.setTitle(title);
+                existingNote.setContent(text);
+                // updatedAt handled by JPA Auditing
+                return this.noteRepository.save(existingNote);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
     }
-  }
 
-  public void renderNote(Long id, OutputStream html) {
-    Note note = this.noteRepository.findById(id).orElse(null);
-    if (note == null) {
-      throw new RuntimeException("Note not found with id: " + id);
+    // ✅ Delete Note
+    public void deleteNote(Long id) {
+        if (this.noteRepository.existsById(id)) {
+            this.noteRepository.deleteById(id);
+        }
     }
-    try (InputStream markdown = new java.io.ByteArrayInputStream(note.getContent().getBytes(StandardCharsets.UTF_8))) {
-      this.markdownToHtmlConverter.convert(markdown, html);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+
+    // ✅ Render as HTML
+    public void renderNote(Long id, OutputStream html) {
+        Note note = this.noteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Note not found with id: " + id));
+        try (InputStream markdown = new java.io.ByteArrayInputStream(
+                note.getContent().getBytes(StandardCharsets.UTF_8))) {
+            this.markdownToHtmlConverter.convert(markdown, html);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
-  }
 }

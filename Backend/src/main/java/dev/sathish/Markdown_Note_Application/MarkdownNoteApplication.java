@@ -1,13 +1,11 @@
-package dev.sathish.Markdown_Note_Application;
-
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing   // Required for createdAt & updatedAt
 public class MarkdownNoteApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(MarkdownNoteApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(MarkdownNoteApplication.class, args);
+    }
 }

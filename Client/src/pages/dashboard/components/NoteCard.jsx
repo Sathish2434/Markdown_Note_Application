@@ -30,15 +30,20 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
     onDuplicate(note);
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Unknown date";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  const date = new Date(dateString);
+  if (isNaN(date)) return "N/A";
+
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 
   const getPreviewText = (content) => {
     if (!content) return "No content";
@@ -102,12 +107,12 @@ const NoteCard = ({ note, onDelete, onDuplicate }) => {
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-1">
             <Icon name="Calendar" size={12} />
-            <span>Created {formatDate(note?.createdAt)}</span>
+            <span>Created {formatDate(note.createdAt)}</span>
           </div>
           {note?.updatedAt && note?.updatedAt !== note?.createdAt && (
             <div className="flex items-center space-x-1">
               <Icon name="Clock" size={12} />
-              <span>Updated {formatDate(note?.updatedAt)}</span>
+              <span>Updated {formatDate(note.updatedAt)}</span>
             </div>
           )}
         </div>

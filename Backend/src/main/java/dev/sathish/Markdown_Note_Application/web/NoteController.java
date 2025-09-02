@@ -30,14 +30,14 @@ public class NoteController {
         return note != null ? ResponseEntity.ok(note) : ResponseEntity.notFound().build();
     }
 
-    // ✅ Create with JSON
+    // ✅ Create Note
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Note> createNote(@RequestBody NoteRequest request) {
         Note saved = noteService.saveNote(request.getTitle(), request.getContent());
         return ResponseEntity.ok(saved);
     }
 
-    // ✅ Update with JSON
+    // ✅ Update Note
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Note> updateNote(@PathVariable("id") Long id, @RequestBody NoteRequest request) {
         try {
@@ -48,12 +48,14 @@ public class NoteController {
         }
     }
 
+    // ✅ Delete Note
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNote(@PathVariable("id") Long id) {
         noteService.deleteNote(id);
         return ResponseEntity.noContent().build();
     }
 
+    // ✅ Render Note as HTML
     @GetMapping(value = "/{id}/render", produces = MediaType.TEXT_HTML_VALUE)
     public ResponseEntity<String> renderNote(@PathVariable("id") Long id) {
         try {
@@ -68,7 +70,7 @@ public class NoteController {
         }
     }
 
-    // ✅ Inner DTO class (no new file created)
+    // ✅ DTO for requests
     public static class NoteRequest {
         private String title;
         private String content;

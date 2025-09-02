@@ -1,10 +1,14 @@
 package dev.sathish.Markdown_Note_Application.core;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.Instant;
 
 @Entity
-@Table(name = "notes")
+@EntityListeners(AuditingEntityListener.class)
 public class Note {
 
     @Id
@@ -13,24 +17,18 @@ public class Note {
 
     private String title;
 
-    @Column(length = 10000)
+    @Lob
     private String content;
 
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
+    @LastModifiedDate
+    @Column(nullable = false)
+    private Instant updatedAt;
 
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    // Getters and setters
+    // --- Getters and Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -40,9 +38,9 @@ public class Note {
     public String getContent() { return content; }
     public void setContent(String content) { this.content = content; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public Instant getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public Instant getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
 }
